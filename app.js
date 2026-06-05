@@ -77,11 +77,6 @@ const providerSelect  = document.getElementById('provider-select');
 const detectedBadge   = document.getElementById('detected-badge');
 const detectedText    = document.getElementById('detected-text');
 
-const apiKeyInput     = document.getElementById('api-key-input');
-const apiKeySaveBtn   = document.getElementById('api-key-save-btn');
-const statusDot       = document.getElementById('status-dot');
-const statusLabel     = document.getElementById('status-label');
-
 const toast           = document.getElementById('toast');
 
 const suggestionChips = document.querySelectorAll('.suggestion-chip');
@@ -148,18 +143,9 @@ function renderHistory() {
 renderHistory();
 
 // =============================================
-// API KEY MANAGEMENT
+// PROVIDER PERSISTENCE
 // =============================================
-const API_KEY_STORAGE = 'pc_api_key_v1';
 const PROVIDER_STORAGE = 'pc_provider_v1';
-
-function loadApiKey() {
-  try { return localStorage.getItem(API_KEY_STORAGE) || ''; } catch { return ''; }
-}
-
-function saveApiKey(key) {
-  try { localStorage.setItem(API_KEY_STORAGE, key); } catch {}
-}
 
 function loadProvider() {
   try { return localStorage.getItem(PROVIDER_STORAGE) || 'openai'; } catch { return 'openai'; }
@@ -169,40 +155,13 @@ function saveProvider(p) {
   try { localStorage.setItem(PROVIDER_STORAGE, p); } catch {}
 }
 
-function updateApiKeyStatus() {
-  const key = loadApiKey();
-  if (key && key.length > 5) {
-    statusDot.style.background = 'var(--accent)';
-    statusLabel.textContent = 'API Key Ready';
-  } else {
-    statusDot.style.background = 'var(--text-muted)';
-    statusLabel.textContent = 'No API Key Set';
-  }
-}
-
-// Restore saved values
-const savedKey = loadApiKey();
-if (savedKey) apiKeyInput.value = savedKey;
 const savedProvider = loadProvider();
 providerSelect.value = savedProvider;
-updateApiKeyStatus();
-
-apiKeySaveBtn.addEventListener('click', () => {
-  const key = apiKeyInput.value.trim();
-  if (key.length < 10) {
-    showToast('Please enter a valid API key');
-    return;
-  }
-  saveApiKey(key);
-  updateApiKeyStatus();
-  showToast('✓ API key saved (local storage)');
-});
 
 providerSelect.addEventListener('change', () => {
   saveProvider(providerSelect.value);
 });
 
-// Also sync the topbar provider select
 const providerSelectTop = document.getElementById('provider-select-top');
 if (providerSelectTop) {
   providerSelectTop.value = providerSelect.value;
@@ -280,14 +239,7 @@ compileBtn.addEventListener('click', async () => {
 
   const tone       = toneSelect.value;
   const provider  = providerSelect.value;
-  const apiKey    = loadApiKey();
 
-  if (!apiKey) {
-    showToast('Please enter an API key in the sidebar first');
-    return;
-  }
-
-  // Switch to chat view
   welcomeScreen.style.display = 'none';
   messagesContainer.style.display = 'flex';
 
@@ -311,7 +263,7 @@ compileBtn.addEventListener('click', async () => {
     const response = await fetch('/api/compile', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ input, tone, provider, apiKey }),
+      body: JSON.stringify({ input, tone, provider }),
     });
 
     const data = await response.json();

@@ -80,17 +80,17 @@ RULES:
 }
 
 app.post('/api/compile', async (req, res) => {
-  const { input, tone, provider, apiKey } = req.body;
+  const { input, tone, provider } = req.body;
 
   if (!input || input.trim().length < 3) {
     return res.status(400).json({ error: 'Input must be at least 3 characters' });
   }
 
-  const key = apiKey || process.env.LLM_API_KEY;
+  const key = process.env.LLM_API_KEY;
   if (!key) {
     return res.status(400).json({
-      error: 'API key is required',
-      hint: 'Enter your API key in the sidebar settings, or set LLM_API_KEY in .env',
+      error: 'LLM_API_KEY not configured',
+      hint: 'Set LLM_API_KEY in the .env file',
     });
   }
 
