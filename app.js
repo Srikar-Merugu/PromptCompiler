@@ -148,7 +148,7 @@ renderHistory();
 const PROVIDER_STORAGE = 'pc_provider_v1';
 
 function loadProvider() {
-  try { return localStorage.getItem(PROVIDER_STORAGE) || 'openai'; } catch { return 'openai'; }
+  try { return localStorage.getItem(PROVIDER_STORAGE) || 'openrouter'; } catch { return 'openrouter'; }
 }
 
 function saveProvider(p) {

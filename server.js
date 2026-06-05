@@ -94,7 +94,7 @@ app.post('/api/compile', async (req, res) => {
     });
   }
 
-  const providerConfig = getProviderConfig(provider || 'openai');
+  const providerConfig = getProviderConfig(provider || 'openrouter');
   const model = req.body.model || providerConfig.defaultModel;
 
   const openai = new OpenAI({
