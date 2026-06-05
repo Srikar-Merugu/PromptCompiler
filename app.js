@@ -351,9 +351,9 @@ function removeThinking(id) {
 function appendAIResponse(response) {
   // Normalize response format (supports both new API and legacy fallback)
   const prompts = response.prompts || {};
-  const prompt1 = prompts.plan || response.prompt1 || '';
-  const prompt2 = prompts.build || response.prompt2 || '';
-  const prompt3 = prompts.optimize || response.prompt3 || '';
+  const prompt1 = prompts.plan || prompts.prompt1 || response.prompt1 || '';
+  const prompt2 = prompts.build || prompts.prompt2 || response.prompt2 || '';
+  const prompt3 = prompts.optimize || prompts.prompt3 || response.prompt3 || '';
   const category = response.category || 'Unknown';
   const confidence = response.confidence != null ? response.confidence : 0;
   const analysis = response.analysis || '';
