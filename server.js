@@ -34,15 +34,18 @@ Apply category lens:
 - Business → Strategist: market, financial model, risk, GTM
 - Automation → Automation Architect: process map, error handling, monitoring
 
-STRUCTURE GUIDE (follow this format depth):
+Each prompt's text must START WITH its stage heading, then the content:
 
-PLAN — 10 sections: Requirements Analysis, System Architecture, Tech Stack, Data Design, API/Interface Design, Project Structure, Roadmap, Security, Scalability, Key Decisions.
+PROMPT 1 — PLAN (Strategy & Architecture)
+[follow with: Requirements Analysis, System Architecture, Tech Stack, Data Design, API/Interface Design, Project Structure, Roadmap, Security, Scalability, Key Decisions]
 
-BUILD — 9 sections: Scaffold, Core Implementation, Deliverables, Auth, Database, Integrations, Error Handling, Validation, Tests.
+PROMPT 2 — BUILD (Implementation & Execution)
+[follow with: Scaffold, Core Implementation, Deliverables, Auth, Database, Integrations, Error Handling, Validation, Tests]
 
-OPTIMIZE — 10 sections: Code Quality, Security Audit, Performance, Bugs & Edge Cases, Refactoring, Test Coverage, Observability, Deployment/CI-CD, Documentation, Scorecard.
+PROMPT 3 — OPTIMIZE (Review & Refinement)
+[follow with: Code Quality, Security Audit, Performance, Bugs & Edge Cases, Refactoring, Test Coverage, Observability, Deployment/CI-CD, Documentation, Scorecard]
 
-CRITICAL: Content must be 100% AI-GENERATED for this specific input. Use the structure above as format guide only. Every prompt must:
+CRITICAL: Content must be 100% AI-GENERATED for this specific input. Use the section lists above as format guide only. Every prompt must:
 - Reference specific technologies, features, and context from the user input
 - Feel hand-crafted with concrete details
 - Be self-contained and ready to copy-paste
