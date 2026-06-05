@@ -213,6 +213,50 @@ textarea { font-family: var(--font); resize: none; outline: none; border: none; 
   border-top: 1px solid var(--border);
 }
 
+.api-key-row {
+  display: flex;
+  gap: 6px;
+  margin: 8px 0 6px;
+}
+
+.api-key-input {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text-primary);
+  font-size: 12px;
+  padding: 7px 10px;
+  font-family: var(--mono);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.api-key-input:focus {
+  border-color: var(--accent-border);
+}
+
+.api-key-input::placeholder {
+  color: var(--text-muted);
+  font-family: var(--font);
+}
+
+.api-key-save-btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-sm);
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+
+.api-key-save-btn:hover {
+  background: var(--accent-hover);
+}
+
 .model-row {
   display: flex;
   align-items: center;
@@ -663,6 +707,26 @@ textarea { font-family: var(--font); resize: none; outline: none; border: none; 
 }
 
 .stat-item svg { flex-shrink: 0; }
+
+.confidence-badge {
+  color: var(--accent);
+}
+
+.confidence-badge svg {
+  color: var(--accent);
+}
+
+.ai-analysis {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--r-md);
+  padding: 12px 16px;
+  margin-bottom: 14px;
+  font-style: italic;
+}
 
 /* Copy All */
 .copy-all-row {

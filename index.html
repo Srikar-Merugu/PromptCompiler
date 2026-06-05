@@ -49,11 +49,15 @@
     <!-- Sidebar Footer -->
     <div class="sidebar-footer">
       <div class="model-row">
-        <div class="model-dot"></div>
-        <span class="model-label">Developer Edition</span>
+        <div class="model-dot" id="status-dot"></div>
+        <span class="model-label" id="status-label">Configure API Key</span>
+      </div>
+      <div class="api-key-row">
+        <input type="password" id="api-key-input" class="api-key-input" placeholder="Enter your API key..." />
+        <button class="api-key-save-btn" id="api-key-save-btn" title="Save key (stored locally)">Save</button>
       </div>
       <div class="supported-models">
-        Works with Claude · ChatGPT · Gemini · Grok · Cursor
+        Powered by OpenAI · OpenRouter · Gemini
       </div>
     </div>
   </aside>
@@ -76,13 +80,10 @@
           <option value="detailed" selected>Detailed</option>
           <option value="expert">Expert</option>
         </select>
-        <select id="model-select-top" class="top-select" aria-label="Target AI">
-          <option value="general" selected>All Models</option>
-          <option value="claude">Claude</option>
-          <option value="chatgpt">ChatGPT</option>
+        <select id="provider-select-top" class="top-select" aria-label="LLM Provider">
+          <option value="openai" selected>OpenAI</option>
+          <option value="openrouter">OpenRouter</option>
           <option value="gemini">Gemini</option>
-          <option value="cursor">Cursor</option>
-          <option value="grok">Grok</option>
         </select>
       </div>
     </header>
@@ -169,14 +170,11 @@
             </select>
           </div>
           <div class="option-pill-group">
-            <label class="option-pill-label">Target AI</label>
-            <select id="model-select" class="option-pill-select" aria-label="Target AI model">
-              <option value="general" selected>All Models</option>
-              <option value="claude">Claude</option>
-              <option value="chatgpt">ChatGPT</option>
+            <label class="option-pill-label">Provider</label>
+            <select id="provider-select" class="option-pill-select" aria-label="LLM Provider">
+              <option value="openai" selected>OpenAI</option>
+              <option value="openrouter">OpenRouter</option>
               <option value="gemini">Gemini</option>
-              <option value="cursor">Cursor</option>
-              <option value="grok">Grok</option>
             </select>
           </div>
           <div class="detected-badge" id="detected-badge" style="display:none">

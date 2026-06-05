@@ -72,10 +72,15 @@ const compileBtn      = document.getElementById('compile-btn');
 
 const toneSelect      = document.getElementById('tone-select');
 const domainSelect    = document.getElementById('domain-select');
-const modelSelect     = document.getElementById('model-select');
+const providerSelect  = document.getElementById('provider-select');
 
 const detectedBadge   = document.getElementById('detected-badge');
 const detectedText    = document.getElementById('detected-text');
+
+const apiKeyInput     = document.getElementById('api-key-input');
+const apiKeySaveBtn   = document.getElementById('api-key-save-btn');
+const statusDot       = document.getElementById('status-dot');
+const statusLabel     = document.getElementById('status-label');
 
 const toast           = document.getElementById('toast');
 
@@ -143,6 +148,74 @@ function renderHistory() {
 renderHistory();
 
 // =============================================
+// API KEY MANAGEMENT
+// =============================================
+const API_KEY_STORAGE = 'pc_api_key_v1';
+const PROVIDER_STORAGE = 'pc_provider_v1';
+
+function loadApiKey() {
+  try { return localStorage.getItem(API_KEY_STORAGE) || ''; } catch { return ''; }
+}
+
+function saveApiKey(key) {
+  try { localStorage.setItem(API_KEY_STORAGE, key); } catch {}
+}
+
+function loadProvider() {
+  try { return localStorage.getItem(PROVIDER_STORAGE) || 'openai'; } catch { return 'openai'; }
+}
+
+function saveProvider(p) {
+  try { localStorage.setItem(PROVIDER_STORAGE, p); } catch {}
+}
+
+function updateApiKeyStatus() {
+  const key = loadApiKey();
+  if (key && key.length > 5) {
+    statusDot.style.background = 'var(--accent)';
+    statusLabel.textContent = 'API Key Ready';
+  } else {
+    statusDot.style.background = 'var(--text-muted)';
+    statusLabel.textContent = 'No API Key Set';
+  }
+}
+
+// Restore saved values
+const savedKey = loadApiKey();
+if (savedKey) apiKeyInput.value = savedKey;
+const savedProvider = loadProvider();
+providerSelect.value = savedProvider;
+updateApiKeyStatus();
+
+apiKeySaveBtn.addEventListener('click', () => {
+  const key = apiKeyInput.value.trim();
+  if (key.length < 10) {
+    showToast('Please enter a valid API key');
+    return;
+  }
+  saveApiKey(key);
+  updateApiKeyStatus();
+  showToast('✓ API key saved (local storage)');
+});
+
+providerSelect.addEventListener('change', () => {
+  saveProvider(providerSelect.value);
+});
+
+// Also sync the topbar provider select
+const providerSelectTop = document.getElementById('provider-select-top');
+if (providerSelectTop) {
+  providerSelectTop.value = providerSelect.value;
+  providerSelectTop.addEventListener('change', () => {
+    providerSelect.value = providerSelectTop.value;
+    saveProvider(providerSelect.value);
+  });
+  providerSelect.addEventListener('change', () => {
+    providerSelectTop.value = providerSelect.value;
+  });
+}
+
+// =============================================
 // SUGGESTION CHIPS
 // =============================================
 suggestionChips.forEach(chip => {
@@ -206,8 +279,13 @@ compileBtn.addEventListener('click', async () => {
   if (!input || input.length < 3) return;
 
   const tone       = toneSelect.value;
-  const domainHint = domainSelect.value;
-  const model      = modelSelect.value;
+  const provider  = providerSelect.value;
+  const apiKey    = loadApiKey();
+
+  if (!apiKey) {
+    showToast('Please enter an API key in the sidebar first');
+    return;
+  }
 
   // Switch to chat view
   welcomeScreen.style.display = 'none';
@@ -229,18 +307,40 @@ compileBtn.addEventListener('click', async () => {
   const label = input.slice(0, 55) + (input.length > 55 ? '...' : '');
   addToHistory(label);
 
-  // Simulate processing
-  await sleep(900 + Math.random() * 700);
+  try {
+    const response = await fetch('/api/compile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ input, tone, provider, apiKey }),
+    });
 
-  // Generate prompts
-  const detected = domainHint === 'auto' ? (detectDomain(input) || 'Software Development') : formatDomainLabel(domainHint);
-  const result   = generatePrompts(input, tone, detected, model);
+    const data = await response.json();
 
-  // Remove thinking
-  removeThinking(thinkingId);
+    // Remove thinking
+    removeThinking(thinkingId);
 
-  // Append AI response cards
-  appendAIResponse(result, detected);
+    if (!response.ok) {
+      throw new Error(data.error || 'Compilation failed');
+    }
+
+    // Append AI response cards
+    appendAIResponse(data);
+
+  } catch (err) {
+    removeThinking(thinkingId);
+    showToast('Error: ' + err.message);
+    // Fallback: use old template generator
+    const domain = domainSelect.value === 'auto'
+      ? (detectDomain(input) || 'Software Development')
+      : formatDomainLabel(domainSelect.value);
+    const fallbackResult = generatePrompts(input, tone, domain, 'general');
+    appendAIResponse({
+      prompts: fallbackResult,
+      category: domain,
+      confidence: 0,
+      analysis: 'Fallback: LLM unavailable. Used template generator.',
+    });
+  }
 
   // Scroll to bottom
   scrollToBottom();
@@ -296,11 +396,25 @@ function removeThinking(id) {
   document.getElementById(id)?.remove();
 }
 
-function appendAIResponse({ prompt1, prompt2, prompt3 }, domain) {
+function appendAIResponse(response) {
+  // Normalize response format (supports both new API and legacy fallback)
+  const prompts = response.prompts || {};
+  const prompt1 = prompts.plan || response.prompt1 || '';
+  const prompt2 = prompts.build || response.prompt2 || '';
+  const prompt3 = prompts.optimize || response.prompt3 || '';
+  const category = response.category || 'Unknown';
+  const confidence = response.confidence != null ? response.confidence : 0;
+  const analysis = response.analysis || '';
+
   const totalWords = countWords(prompt1 + prompt2 + prompt3);
+  const confidencePct = Math.round(confidence * 100);
 
   const div = document.createElement('div');
   div.className = 'msg-ai';
+
+  const analysisHtml = analysis
+    ? `<div class="ai-analysis">${escapeHtml(analysis)}</div>`
+    : '';
 
   div.innerHTML = `
     <div class="msg-ai-avatar">
@@ -309,28 +423,35 @@ function appendAIResponse({ prompt1, prompt2, prompt3 }, domain) {
       </svg>
     </div>
     <div class="msg-ai-body">
-      <div class="msg-ai-name">PromptCompiler <span style="font-size:11px;font-weight:400;color:var(--text-muted);margin-left:4px;">3 prompts compiled</span></div>
+      <div class="msg-ai-name">PromptCompiler <span style="font-size:11px;font-weight:400;color:var(--text-muted);margin-left:4px;">3 optimized prompts</span></div>
+
+      ${analysisHtml}
 
       <div class="prompt-cards-grid">
 
-        ${buildCardHTML('plan', '01', 'PROMPT 1 — PLAN', 'Planning & Architecture', prompt1)}
-        ${buildCardHTML('build', '02', 'PROMPT 2 — BUILD', 'Implementation', prompt2)}
-        ${buildCardHTML('opt', '03', 'PROMPT 3 — OPTIMIZE', 'Review, Testing & Optimization', prompt3)}
+        ${buildCardHTML('plan', '01', 'PROMPT 1 — PLAN', 'Strategy & Architecture', prompt1)}
+        ${buildCardHTML('build', '02', 'PROMPT 2 — BUILD', 'Implementation & Execution', prompt2)}
+        ${buildCardHTML('opt', '03', 'PROMPT 3 — OPTIMIZE', 'Review & Refinement', prompt3)}
 
       </div>
 
       <div class="stats-bar">
         <span class="stat-item">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          Domain: ${escapeHtml(domain)}
+          Category: ${escapeHtml(category)}
         </span>
         <span class="stat-item">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          ${totalWords.toLocaleString()} words total
+          ${totalWords.toLocaleString()} words
         </span>
-        <span class="stat-item">
+        ${confidence > 0 ? `
+        <span class="stat-item confidence-badge" title="Confidence in category detection">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-          3 prompts ready
+          ${confidencePct}% confidence
+        </span>` : ''}
+        <span class="stat-item">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          LLM-optimized
         </span>
       </div>
 
