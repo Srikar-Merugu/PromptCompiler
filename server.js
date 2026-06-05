@@ -30,56 +30,47 @@ function getProviderConfig(provider) {
 }
 
 function buildSystemPrompt(tone) {
-  const toneDescriptions = {
-    standard: 'concise but complete — each optimized prompt should be 150–300 words',
-    detailed: 'thorough with specific patterns and context — each optimized prompt should be 300–600 words',
-    expert: 'comprehensive with advanced techniques, edge cases, and production-grade depth — each optimized prompt should be 500–1000 words',
+  const wordTargets = {
+    standard: '80-120 words each',
+    detailed: '120-200 words each',
+    expert: '200-350 words each',
   };
-  const description = toneDescriptions[tone] || toneDescriptions.detailed;
+  const target = wordTargets[tone] || wordTargets.detailed;
 
-  return `You are PromptCompiler, an expert prompt engineering engine.
+  return `You are PromptCompiler, an expert prompt engineer. Analyze the user's input and generate 3 optimized prompts (${target}).
 
-TONE: ${tone} — ${description}
+Step 1 — Determine:
+- Core intent
+- Category (one of): Coding, UI/UX, Image Generation, Content Writing, Marketing, Career, Research, Business, Automation
+- Confidence score 0.0-1.0
 
-Analyze the user's input and generate 3 optimized prompts.
+Step 2 — Apply strategy:
+- Coding: Architecture-first. Role: Principal Engineer.
+- UI/UX: Design-thinking. Role: UX Director.
+- Image Generation: Visual direction. Role: Art Director.
+- Content Writing: Narrative-first. Role: Editor-in-Chief.
+- Marketing: Conversion-focused. Role: Marketing Director.
+- Career: Narrative-impact. Role: Career Coach.
+- Research: Methodology-driven. Role: Research Director.
+- Business: ROI-focused. Role: Business Strategist.
+- Automation: Workflow-efficiency. Role: Automation Architect.
 
-Step 1 — Analyze the user's input to determine:
-- Core intent / goal
-- Category (exactly one of): Coding, UI/UX, Image Generation, Content Writing, Marketing, Career, Research, Business, Automation
-- Your confidence in this classification (0.0 to 1.0)
+Step 3 — Generate 3 prompts using the strategy above:
 
-Step 2 — Apply the category-specific prompt engineering strategy:
+PROMPT 1 — PLAN: Strategic prompt with role, objectives, requirements, and output format.
 
-Coding: Architecture-first. Role: Principal Engineer. Focus: system design, patterns, testing.
-UI/UX: Design-thinking. Role: UX Director. Focus: research, accessibility, interaction.
-Image Generation: Visual direction. Role: Art Director. Focus: composition, lighting, style.
-Content Writing: Narrative-first. Role: Editor-in-Chief. Focus: voice, audience, structure.
-Marketing: Conversion-focused. Role: Marketing Director. Focus: positioning, targeting, CRO.
-Career: Narrative-impact. Role: Career Coach. Focus: achievement framing, narrative.
-Research: Methodology-driven. Role: Research Director. Focus: rigor, lit review, analysis.
-Business: ROI-focused. Role: Business Strategist. Focus: market, financials, roadmap.
-Automation: Workflow-efficiency. Role: Automation Architect. Focus: reliability, monitoring.
+PROMPT 2 — BUILD: Execution prompt with deliverables, steps, and quality criteria.
 
-Step 3 — Generate 3 optimized prompts:
+PROMPT 3 — OPTIMIZE: Review prompt with evaluation criteria and improvements.
 
-PROMPT 1 — PLAN: A strategic prompt with role definition, objectives, requirements, structured approach, constraints, and output format.
-
-PROMPT 2 — BUILD: An execution prompt with hands-on role, specific deliverables, step-by-step guidance, quality criteria, and tooling.
-
-PROMPT 3 — OPTIMIZE: A review prompt with evaluator role, criteria, improvement areas, edge cases, and final deliverable specs.
-
-CRITICAL RULES:
-- Every prompt must be DIFFERENT for different inputs — never reuse structure
-- Use specific details from the user's input to craft each prompt
-- Apply role prompting, chain-of-thought, constraints, and output formatting
-- Each prompt must feel hand-crafted for that specific user request
-- Do NOT include meta-instructions like "based on the user input" — the prompts should be self-contained and ready to use
-
-Output ONLY valid JSON in this exact format:
+RULES:
+- Use specific details from the user's input — never templates
+- Each prompt must be self-contained and ready to use
+- Output ONLY valid JSON:
 {
   "category": "...",
   "confidence": 0.95,
-  "analysis": "2-3 sentence explanation of the optimization approach",
+  "analysis": "brief explanation",
   "prompts": {
     "plan": "...",
     "build": "...",
@@ -121,7 +112,7 @@ app.post('/api/compile', async (req, res) => {
         { role: 'user', content: input },
       ],
       temperature: 0.8,
-      max_tokens: 4096,
+      max_tokens: 2048,
     });
 
     const content = completion.choices[0]?.message?.content;
