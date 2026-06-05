@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PromptCompiler V2</title>
+  <meta name="description" content="Transform any idea into three production-grade AI prompts. Plan. Build. Optimize." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+      <!-- Logo -->
+      <div class="logo">
+        <div class="logo-icon">
+          <!-- Sparkle / AI brain logo -->
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C10.4 2 9 3 8.5 4.4C7.3 4.1 6 4.7 5.3 5.8C4.2 5.6 3.1 6.3 2.7 7.4C1.6 7.6 1 8.7 1.2 9.8C0.4 10.6 0.3 11.8 0.9 12.7C0.6 13.7 1.1 14.8 2 15.3C2.2 16.4 3.1 17.2 4.2 17.2C4.8 18.1 5.9 18.5 6.9 18.2C7.7 18.9 8.8 19.1 9.8 18.7L10 19.5C10.2 20.4 11 21 11.9 21H12.1C13 21 13.8 20.4 14 19.5L14.2 18.7C15.2 19.1 16.3 18.9 17.1 18.2C18.1 18.5 19.2 18.1 19.8 17.2C20.9 17.2 21.8 16.4 22 15.3C22.9 14.8 23.4 13.7 23.1 12.7C23.7 11.8 23.6 10.6 22.8 9.8C23 8.7 22.4 7.6 21.3 7.4C20.9 6.3 19.8 5.6 18.7 5.8C18 4.7 16.7 4.1 15.5 4.4C15 3 13.6 2 12 2Z" fill="white" opacity="0.15"/>
+            <circle cx="9" cy="10" r="1.2" fill="white"/>
+            <circle cx="15" cy="10" r="1.2" fill="white"/>
+            <path d="M9 14c0 0 1 2 3 2s3-2 3-2" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+            <path d="M12 2v1M17.66 4.34l-.71.71M20 9h-1M17.66 13.66l-.71-.71M12 15v1M6.34 13.66l.71-.71M4 9h1M6.34 4.34l.71.71" stroke="white" stroke-width="1.3" stroke-linecap="round" opacity="0.7"/>
+          </svg>
+        </div>
+        <span class="logo-text">PromptCompiler</span>
+        <span class="logo-v2">V2</span>
+      </div>
+
+      <!-- New Chat Button -->
+      <button class="new-chat-btn" id="new-chat-btn" aria-label="New chat">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Chat
+      </button>
+    </div>
+
+    <!-- History -->
+    <div class="sidebar-section">
+      <p class="sidebar-label">Recent</p>
+      <nav class="history-list" id="history-list" aria-label="Compilation history">
+        <!-- Populated by JS -->
+      </nav>
+    </div>
+
+    <!-- Sidebar Footer -->
+    <div class="sidebar-footer">
+      <div class="model-row">
+        <div class="model-dot"></div>
+        <span class="model-label">Developer Edition</span>
+      </div>
+      <div class="supported-models">
+        Works with Claude · ChatGPT · Gemini · Grok · Cursor
+      </div>
+    </div>
+  </aside>
+
+  <!-- Mobile overlay -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- ===== MAIN ===== -->
+  <div class="main-layout">
+
+    <!-- Top bar (mobile) -->
+    <header class="topbar">
+      <button class="topbar-menu" id="sidebar-toggle" aria-label="Toggle sidebar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <span class="topbar-title">PromptCompiler V2</span>
+      <div class="topbar-options" id="topbar-options">
+        <select id="tone-select-top" class="top-select" aria-label="Output depth">
+          <option value="standard">Standard</option>
+          <option value="detailed" selected>Detailed</option>
+          <option value="expert">Expert</option>
+        </select>
+        <select id="model-select-top" class="top-select" aria-label="Target AI">
+          <option value="general" selected>All Models</option>
+          <option value="claude">Claude</option>
+          <option value="chatgpt">ChatGPT</option>
+          <option value="gemini">Gemini</option>
+          <option value="cursor">Cursor</option>
+          <option value="grok">Grok</option>
+        </select>
+      </div>
+    </header>
+
+    <!-- ===== CHAT AREA ===== -->
+    <main class="chat-area" id="chat-area">
+
+      <!-- Welcome Screen (shown when empty) -->
+      <div class="welcome-screen" id="welcome-screen">
+        <div class="welcome-icon">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Outer glow blob -->
+            <path d="M12 2C10.4 2 9 3 8.5 4.4C7.3 4.1 6 4.7 5.3 5.8C4.2 5.6 3.1 6.3 2.7 7.4C1.6 7.6 1 8.7 1.2 9.8C0.4 10.6 0.3 11.8 0.9 12.7C0.6 13.7 1.1 14.8 2 15.3C2.2 16.4 3.1 17.2 4.2 17.2C4.8 18.1 5.9 18.5 6.9 18.2C7.7 18.9 8.8 19.1 9.8 18.7L10 19.5C10.2 20.4 11 21 11.9 21H12.1C13 21 13.8 20.4 14 19.5L14.2 18.7C15.2 19.1 16.3 18.9 17.1 18.2C18.1 18.5 19.2 18.1 19.8 17.2C20.9 17.2 21.8 16.4 22 15.3C22.9 14.8 23.4 13.7 23.1 12.7C23.7 11.8 23.6 10.6 22.8 9.8C23 8.7 22.4 7.6 21.3 7.4C20.9 6.3 19.8 5.6 18.7 5.8C18 4.7 16.7 4.1 15.5 4.4C15 3 13.6 2 12 2Z" fill="#10a37f" opacity="0.2"/>
+            <!-- Eyes -->
+            <circle cx="9" cy="10.5" r="1.4" fill="#10a37f"/>
+            <circle cx="15" cy="10.5" r="1.4" fill="#10a37f"/>
+            <!-- Smile -->
+            <path d="M9 14.5c0 0 1.2 2 3 2s3-2 3-2" stroke="#10a37f" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+            <!-- Sparkle rays -->
+            <path d="M12 1.5v1.2M18.36 3.64l-.85.85M21 10h-1.2M18.36 16.36l-.85-.85M12 19.5v-1.2M5.64 16.36l.85-.85M3 10h1.2M5.64 3.64l.85.85" stroke="#10a37f" stroke-width="1.4" stroke-linecap="round" opacity="0.6"/>
+          </svg>
+        </div>
+        <h1 class="welcome-title">Master Prompt Compiler V2</h1>
+        <p class="welcome-sub">Transform any idea into three production-grade AI prompts</p>
+
+        <!-- Suggestion chips -->
+        <div class="suggestion-grid">
+          <button class="suggestion-chip" data-text="Build a full-stack SaaS analytics dashboard using Next.js, Supabase, and Stripe subscriptions with real-time charts and team management">
+            <span class="chip-icon">📊</span>
+            <span class="chip-label">SaaS Analytics Dashboard</span>
+            <span class="chip-sub">Next.js + Supabase + Stripe</span>
+          </button>
+          <button class="suggestion-chip" data-text="Create an AI-powered customer support chatbot with RAG, LangChain, OpenAI GPT-4, vector database, and Slack/Zendesk integration">
+            <span class="chip-icon">🤖</span>
+            <span class="chip-label">AI Support Chatbot</span>
+            <span class="chip-sub">LangChain + RAG + GPT-4</span>
+          </button>
+          <button class="suggestion-chip" data-text="Build a React Native fitness tracking mobile app with workout plans, nutrition logging, progress analytics, and Apple Health integration">
+            <span class="chip-icon">📱</span>
+            <span class="chip-label">Mobile Fitness App</span>
+            <span class="chip-sub">React Native + Firebase</span>
+          </button>
+          <button class="suggestion-chip" data-text="Design a microservices e-commerce backend with Node.js, PostgreSQL, Redis, Elasticsearch, Stripe payments, and Kubernetes deployment">
+            <span class="chip-icon">🛒</span>
+            <span class="chip-label">E-Commerce Backend</span>
+            <span class="chip-sub">Microservices + Kubernetes</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Messages Container -->
+      <div class="messages-container" id="messages-container" style="display:none">
+        <!-- Messages injected by JS -->
+      </div>
+
+    </main>
+
+    <!-- ===== INPUT BAR ===== -->
+    <div class="input-bar-wrapper">
+      <div class="input-bar" id="input-bar">
+
+        <!-- Options Row (above input on desktop) -->
+        <div class="input-options" id="input-options">
+          <div class="option-pill-group">
+            <label class="option-pill-label">Depth</label>
+            <select id="tone-select" class="option-pill-select" aria-label="Output depth">
+              <option value="standard">Standard</option>
+              <option value="detailed" selected>Detailed</option>
+              <option value="expert">Expert</option>
+            </select>
+          </div>
+          <div class="option-pill-group">
+            <label class="option-pill-label">Domain</label>
+            <select id="domain-select" class="option-pill-select" aria-label="Domain">
+              <option value="auto" selected>Auto-Detect</option>
+              <option value="fullstack">Full Stack</option>
+              <option value="frontend">Frontend</option>
+              <option value="backend">Backend</option>
+              <option value="mobile">Mobile</option>
+              <option value="ai">AI / ML</option>
+              <option value="saas">SaaS</option>
+              <option value="devops">DevOps</option>
+              <option value="data">Data</option>
+            </select>
+          </div>
+          <div class="option-pill-group">
+            <label class="option-pill-label">Target AI</label>
+            <select id="model-select" class="option-pill-select" aria-label="Target AI model">
+              <option value="general" selected>All Models</option>
+              <option value="claude">Claude</option>
+              <option value="chatgpt">ChatGPT</option>
+              <option value="gemini">Gemini</option>
+              <option value="cursor">Cursor</option>
+              <option value="grok">Grok</option>
+            </select>
+          </div>
+          <div class="detected-badge" id="detected-badge" style="display:none">
+            <span class="detected-dot"></span>
+            <span id="detected-text">Auto</span>
+          </div>
+        </div>
+
+        <!-- Textarea Row -->
+        <div class="textarea-row">
+          <textarea
+            id="user-input"
+            class="chat-input"
+            placeholder="Describe your project, idea, or problem..."
+            rows="1"
+            aria-label="Enter your idea or project description"
+            maxlength="4000"
+          ></textarea>
+          <button class="send-btn" id="compile-btn" aria-label="Compile prompts" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+          </button>
+        </div>
+
+        <p class="input-hint">Press <kbd>Enter</kbd> to compile · <kbd>Shift+Enter</kbd> for new line</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast" role="alert"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
