@@ -19,7 +19,7 @@ function buildSystemPrompt(tone) {
   };
   const quality = depth[tone] || depth.detailed;
 
-  return `You are PromptCompiler. Generate 3 MASTER-LEVEL prompts (${quality}, 250-500 words each).
+  return `You are PromptCompiler. Generate 3 MASTER-LEVEL prompts (${quality}, 150-300 words each).
 
 First classify: category (Coding|UI/UX|Image Generation|Content Writing|Marketing|Career|Research|Business|Automation), confidence 0-1.
 
@@ -80,7 +80,7 @@ app.post('/api/compile', async (req, res) => {
           { role: 'user', content: input },
         ],
         temperature: 0.8,
-        max_tokens: 2800,
+        max_tokens: 1500,
       }),
     });
 
